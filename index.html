@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="main_css.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Railway Reservation</title>
+</head>
+<body>
+    
+<script src="https://www.gstatic.com/firebasejs/8.0.2/firebase-app.js"></script>    
+<script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-database.js"></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+<script src="https://www.gstatic.com/firebasejs/8.0.2/firebase-analytics.js"></script>
+
+<script>
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  var firebaseConfig = {
+    apiKey: "AIzaSyDpzHKlHAiuhkw4FqzM9ZkfPAef3A6AxxY",
+    authDomain: "railwayapp-3408e.firebaseapp.com",
+    databaseURL: "https://railwayapp-3408e.firebaseio.com",
+    projectId: "railwayapp-3408e",
+    storageBucket: "railwayapp-3408e.appspot.com",
+    messagingSenderId: "81770503448",
+    appId: "1:81770503448:web:ac80b6722c143e5657526d",
+    measurementId: "G-KEMPGQEFN1"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  firebase.analytics();
+</script>
+
+<script>
+    function Validation() {
+        console.log("Inside validation")
+        var pass= document.getElementById('password').value;
+        var repass = document.getElementById('repassword').value;
+        var ph = document.getElementById("phno").value;
+        var pin = document.getElementById("pin").value;
+        var car =  document.getElementById("Card").value;
+        var mon =  document.getElementById("m").selected;
+        var y=  document.getElementById("y").selected;
+        var cvv = document.getElementById("CVV").value;
+          
+        if (pass.length<=6) {
+            window.alert("Invalid Password. Password must contain atleast 6 letters.")
+            document.getElementById("repassword").value="";
+            document.getElementById("password").value="";
+        }
+        else if (pass!=repass) {
+            window.alert("Password mismatch!");
+            document.getElementById("repassword").value="";
+        } 
+        else if (ph.length!=10) {
+            window.alert("Invalid phone number. Phone number must have 10 digits");
+            document.getElementById("phno").value="";
+        }
+        else if (pin.length!=6) {
+            window.alert("Invalid pincode. Pincode must have 6 digits");
+            document.getElementById("pin").value="";
+        }
+        else if (car.length!=16) {
+            window.alert("Invalid Card Number. Card Number must have 16 digits");
+            document.getElementById("Card").value="";
+        }
+        else if (cvv.length<3 && cvv.length>4 ) {
+            window.alert("Invalid CVV number. CVV must have 3 or 4 digits");
+            document.getElementById("CVV").value="";
+        }
+        else if (mon && y) {
+            window.alert("Choose an appropriate expiry date");
+            document.getElementById("CVV").value="";
+        }
+        else if (document.getElementById("repassword").value=="" ||document.getElementById("password").value=="" ||document.getElementById("username").value==""||document.getElementById("pin").value==""||document.getElementById("aadhar").value==""||document.getElementById("Fname").value==""||document.getElementById("Lname").value==""||document.getElementById("phno").value==""||
+        document.getElementById("CVV").value==""||document.getElementById("Card").value==""||document.getElementById("m").selected==true||document.getElementById("y").selected==true) {
+            window.alert("All fields are mandatory. Please fill all the fields");
+        }
+        else{
+            submit_form(); 
+        }
+    }
+    
+    
+    function submit_form(){
+        var key  = firebase.database().ref('USERS').push().key;
+        //var email = document.getElementById("email").value;    
+        var password = document.getElementById("password").value; 
+        var email = document.getElementById("username").value + "@gmail.com";
+        var pin = document.getElementById("pin").value;
+        var aadhar = document.getElementById("aadhar").value;
+        var Fname = document.getElementById("Fname").value;
+        var Lname = document.getElementById("Lname").value;
+        var phno = document.getElementById("phno").value;
+        var ccv = document.getElementById("CVV").value;
+        var card = document.getElementById("Card").value;
+        var month = document.getElementById("m").selected;
+        var year = document.getElementById("y").selected;
+       
+    
+       
+        firebase.auth().createUserWithEmailAndPassword(email, password).then(function(user){
+            console.log('everything went fine');
+            console.log('user object:' + user);
+
+            if(user){
+                if (firebase.auth().currentUser !== null) 
+                console.log("user id: " + firebase.auth().currentUser.uid);
+                
+                firebase.database().ref('USERS/PASSENGER/' + firebase.auth().currentUser.uid).set({
+                    FIRST_NAME: Fname,
+                    LAST_NAME: Lname,
+                    AADHAR : aadhar,
+                    PIN_CODE : pin,
+                    PHONE : phno,
+                    CCV : ccv,
+                    CARD_NUMBER : card
+                })    
+                window.alert("Account created")
+                document.getElementById("repassword").value="";
+                document.getElementById("password").value="";
+                document.getElementById("username").value="";
+                document.getElementById("pin").value="";
+                document.getElementById("aadhar").value="";
+                document.getElementById("Fname").value="";
+                document.getElementById("Lname").value="";
+                document.getElementById("phno").value="";
+                document.getElementById("CVV").value="";
+                document.getElementById("Card").value="";
+                document.getElementById("m").selected=true;
+                document.getElementById("y").selected=true;    
+            }
+        
+            //you can save the user data here.
+        }).catch(function(error) {
+            // Handle Errors here.
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            console.log(errorCode)
+            console.log(errorMessage)
+            window.alert(errorMessage)
+            console.log(email)
+            // ...
+          });
+    }
+</script>
+
+    <div class="jumbotron" style="background-color: rgb(194, 255, 224);">
+        <div class="rail">
+        <h1 style="margin-left: 30%; ">Railway Registration</h1>
+        <p class="jumbo">Register yourself an account here to login and reserve tickets in the smart railway voice assistance with ease</p>
+        </div>
+    </div>
+      <div class="row">
+
+        <div class="relative_box">
+            <div class="absolute_below_relative_box">
+                <div class="form_division">
+                    <form>
+                        <br>
+                        <label style="float: left; margin-top:10px">First Name</label>
+                        <br>
+                        <input type="text " class="form_box " name="input_first_name" placeholder="Enter First Name..." id="Fname">
+                     
+                        <br>
+                        <label style="float: left;  margin-top:10px">Last Name</label>
+                        <br>
+                        <input type="text " class="form_box " name="input_last_name" placeholder="Enter Last Name..." id="Lname">
+
+                        <br>
+                        <br>
+                        <label style="float: left;  margin-top:10px">Username</label>
+                        <br>
+                        <input type="text " class="form_box " name="input_user_name" placeholder="Enter Username..." id="username">
+
+                        <br>
+                        <label style="float: left;  margin-top:10px">Password</label>
+                        <br>
+                        <input type="password" class="form_box " name="input_password" placeholder="Enter password..." id="password">
+                     
+                        <br>
+                        <label style="float: left;  margin-top:10px">Password</label>
+                        <br>
+                        <input type="password" class="form_box " name="input_password_re_enter" placeholder="Re-Enter password..." id="repassword">
+
+                        <br>
+                        <label style="float: left;  margin-top:10px">Aadhar No</label>
+                        <br>
+                        <input type="number " class="form_box " name="input_aadhar" placeholder="Enter aadhar no..." id="aadhar">
+
+                        <br>
+                        <label style="float: left;  margin-top:10px">Phone No</label>
+                        <br>
+                        <input type="tel" class="form_box " name="input_phone" placeholder="Enter phone no..." id="phno">
+
+                        <br>
+                        <label style="float: left;  margin-top:10px">Pincode</label>
+                        <br>
+                        <input type="number " class="form_box " name="input_pincode" placeholder="Enter pincode..." id="pin">
+                        <br>
+                        <label style="float: left;  margin-top:10px">Card Number</label>
+                        <br>
+                        <input type="number " class="form_box " name="input_card" placeholder="Enter Card number..." id="Card">
+                        <br>
+                        <label style="float: left;  margin-top:10px">CVV</label>
+                        <br>
+                        <input type="number " class="form_box " name="input_CVV" placeholder="Enter CVV..." id="CVV">
+                        <br>
+
+                        
+                        <label style="float: left;  margin-top:10px">Expiration Date</label>
+                            <select class="form_box" style="width: 30%; margin-bottom: 5px; margin-top: 5%;" id="month">
+                                <option id="m" selected>--Month--</option>
+                                <option value="1">January</option>
+                                <option value="2">February </option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                            <select class="form_box"  style="width: 30%; margin-bottom: 5px; margin-top: 5%;" id="year">
+                                <option id="y" selected>--Year--</option>
+                                <option value="1"> 2020</option>
+                                <option value="2"> 2021</option>
+                                <option value="3"> 2022</option>
+                                <option value="4"> 2023</option>
+                                <option value="5"> 2024</option>
+                                <option value="6"> 2025</option>
+                                <option value="7"> 2026</option>
+                                <option value="8"> 2027</option>
+                            </select>
+                            
+                    </form>
+                    <button onclick="Validation()" class="form_box" style="margin-top: 30px; text-align: center; font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; font-size: 16px;">Submit</button>
+
+                </div>
+            </div>
+        </div>
+      </div>
+</body>
+</html>
